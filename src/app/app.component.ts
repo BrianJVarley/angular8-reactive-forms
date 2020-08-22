@@ -3,6 +3,7 @@ import { COMMA, ENTER } from "@angular/cdk/keycodes";
 import { MatChipInputEvent } from "@angular/material/chips";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { CustomValidators } from "./CustomValidators";
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: "app-root",
@@ -26,7 +27,7 @@ export class AppComponent {
   emails: string[] = ["bvarley@gmail.com"];
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
-  constructor(public fb: FormBuilder) {}
+  constructor(public fb: FormBuilder, private _snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
     this.reactiveForm();
@@ -45,8 +46,7 @@ export class AppComponent {
       grade: ["", [CustomValidators.validateRequired]],
     });
 
-    this.detailsForm.controls['emails'].setValue(this.emails);
-
+    this.detailsForm.controls["emails"].setValue(this.emails);
   }
 
   /* Date */
@@ -60,30 +60,31 @@ export class AppComponent {
   addEmail(event: MatChipInputEvent): void {
     const input = event.input;
     const value = event.value;
-    if ((value.trim() !== '')) {
-      this.detailsForm.controls['emails'].setErrors(null);   // 1
-      const tempEmails = this.detailsForm.controls['emails'].value; // 2
+    if (value.trim() !== "") {
+      this.detailsForm.controls["emails"].setErrors(null); // 1
+      const tempEmails = this.detailsForm.controls["emails"].value; // 2
       tempEmails.push(value.trim());
-      this.detailsForm.controls['emails'].setValue(tempEmails);     // 3
-      if (this.detailsForm.controls['emails'].valid) {              // 4
-        this.detailsForm.controls['emails'].markAsDirty();
-        input.value = '';                                    // 5
+      this.detailsForm.controls["emails"].setValue(tempEmails); // 3
+      if (this.detailsForm.controls["emails"].valid) {
+        // 4
+        this.detailsForm.controls["emails"].markAsDirty();
+        input.value = ""; // 5
       } else {
         // const index = this.emails.findIndex(value1 => value1 === value.trim());
         // if (index !== -1) {
         //   this.emails.splice(index, 1);           // 6
         // }
-        this.detailsForm.controls['emails'].markAsDirty();
-        input.value = '';  
-        this.detailsForm.controls['emails'].updateValueAndValidity();
+        this.detailsForm.controls["emails"].markAsDirty();
+        input.value = "";
+        this.detailsForm.controls["emails"].updateValueAndValidity();
       }
     } else {
-      this.detailsForm.controls['emails'].updateValueAndValidity();  // 7
+      this.detailsForm.controls["emails"].updateValueAndValidity(); // 7
     }
   }
 
   removeEmail(email: string): void {
-    let controller = this.detailsForm.controls['emails'];
+    let controller = this.detailsForm.controls["emails"];
     let index = this.emails.indexOf(email, 0);
     if (index > -1) {
       this.emails.splice(index, 1);
@@ -99,7 +100,13 @@ export class AppComponent {
   submitForm() {
     this.detailsForm.controls["emails"].markAsTouched();
     if (this.detailsForm.valid) {
-      console.log("Ready to go: ", this.detailsForm.controls["emails"].value);
+      this._snackBar.open(
+        "Form Valid, you are a Reactive Forms Wizard!",
+        "Sent",
+        {
+          duration: 2000,
+        }
+      );
     }
   }
 }
