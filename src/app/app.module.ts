@@ -8,11 +8,13 @@ import { AngularMaterialModule } from './material.module';
 
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { DetailsFormComponent } from './details-form/details-form.component';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    DetailsFormComponent
   ],
   imports: [
     BrowserModule,
