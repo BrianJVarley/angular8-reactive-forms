@@ -1,29 +1,40 @@
 <!-- Toolbar -->
-<mat-toolbar color="warn" class="header">
-  <span class="title-center mat-h1">Angular 8 Reactive Forms</span>
-</mat-toolbar>
+<mat-toolbar color="warn" class="header"> <span class="title-center mat-h1">Angular 8 Reactive Forms</span> </mat-toolbar>
 
 <!-- wrapper -->
 <mat-sidenav-container>
   <mat-sidenav-content>
-    <form [formGroup]="myForm" (ngSubmit)="submitForm()" novalidate>
+    <form [formGroup]="detailsForm" (ngSubmit)="submitForm()" novalidate>
       <!-- Name -->
       <mat-form-field class="example-full-width">
-        <input matInput placeholder="Name" formControlName="name">
+        <input matInput placeholder="Name" formControlName="name" />
         <!-- error -->
-        <mat-error *ngIf="errorHandling('name', 'required')">
-          You must provide a<strong>student name</strong>
-        </mat-error>
+        <mat-error *ngIf="errorHandling('name', 'required')"> You must provide a<strong>student name</strong> </mat-error>
       </mat-form-field>
 
-      <!-- Email -->
-      <mat-form-field class="example-full-width">
-        <input matInput placeholder="Email" formControlName="email">
+      <!-- Emails -->
+      <mat-form-field style="width: 100%">
+        <mat-chip-list #emailList>
+          <!--Iterate by array of data and display a chip for each value.-->
+          <mat-chip *ngFor="let email of emails" removable (removed)="removeEmail(email)">
+            {{ email }}
+            <!--Icon that is used as a button when 'removable' set to true.-->
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+          <input
+            placeholder="Enter emails"
+            [matChipInputAddOnBlur]="true"
+            [matChipInputFor]="emailList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            (matChipInputTokenEnd)="addEmail($event)"
+          />
+        </mat-chip-list>
         <!-- error -->
-        <mat-error *ngIf="errorHandling('email', 'required')">
-          You must provide a<strong>email</strong>
-        </mat-error>
+      
       </mat-form-field>
+
+      <mat-error *ngIf="errorHandling('emails', 'emailInvalid')"> Please enter <strong>a valid email address with @ domain</strong> </mat-error>
+      <mat-error *ngIf="errorHandling('emails', 'required')"> Please enter <strong>at least one email address</strong> </mat-error>
 
       <!-- Gender -->
       <div class="misc-bottom-padding">
@@ -36,44 +47,31 @@
 
       <!-- Date picker -->
       <mat-form-field>
-        <input matInput readonly [matDatepicker]="picker" placeholder="Date of birth" formControlName="dob"
-          (dateChange)="date($event)">
+        <input
+          matInput
+          readonly
+          [matDatepicker]="picker"
+          placeholder="Date of birth"
+          formControlName="dob"
+          (dateChange)="date($event)"
+        />
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
         <!-- error -->
-        <mat-error *ngIf="errorHandling('dob', 'required')">
-          Please enter <strong>date of birth</strong>
-        </mat-error>
+        <mat-error *ngIf="errorHandling('dob', 'required')"> Please enter <strong>date of birth</strong> </mat-error>
       </mat-form-field>
 
       <!-- Class -->
       <mat-form-field>
         <mat-label>Grade</mat-label>
         <mat-select [(value)]="selected" formControlName="grade">
-          <mat-option [value]="gradeArray" *ngFor="let gradeArray of GradeArray">{{gradeArray}}
-          </mat-option>
+          <mat-option [value]="grade" *ngFor="let grade of grades">{{ grade }} </mat-option>
         </mat-select>
-      </mat-form-field>
-
-      <!-- Add Subjects -->
-      <mat-form-field class="multiple-items">
-        <mat-chip-list #chipList>
-          <mat-chip *ngFor="let subjectsArray of SubjectsArray" [selectable]="selectable" [removable]="removable"
-            (removed)="remove(subjectsArray)">
-            {{subjectsArray.name}}
-            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-          </mat-chip>
-          <input placeholder="Add subjects" [matChipInputFor]="chipList"
-            [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
-            (matChipInputTokenEnd)="add($event)">
-        </mat-chip-list>
+        <mat-error *ngIf="errorHandling('grade', 'required')"> Please select <strong>a grade</strong> </mat-error>
       </mat-form-field>
 
       <!-- Submit -->
-      <div class="button-wrapper">
-        <button mat-flat-button color="primary">Submit</button>
-      </div>
-
+      <div class="button-wrapper"><button mat-flat-button color="primary">Submit</button></div>
     </form>
   </mat-sidenav-content>
 </mat-sidenav-container>

@@ -1,84 +1,105 @@
-import { Component, ViewChild } from '@angular/core';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { Component, ViewChild } from "@angular/core";
+import { COMMA, ENTER } from "@angular/cdk/keycodes";
+import { MatChipInputEvent } from "@angular/material/chips";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
-
-export interface Subject {
-  name: string;
-}
+import { CustomValidators } from "./CustomValidators";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"],
 })
-
 export class AppComponent {
   visible = true;
   selectable = true;
   removable = true;
   addOnBlur = true;
-  myForm: FormGroup;
-  @ViewChild('chipList', { static: true }) chipList;
-  GradeArray: any = ['8th Grade', '9th Grade', '10th Grade', '11th Grade', '12th Grade'];
-  SubjectsArray: Subject[] = [];
+  detailsForm: FormGroup;
+  @ViewChild("emailList", { static: true }) emailList;
+  grades: string[] = [
+    "8th Grade",
+    "9th Grade",
+    "10th Grade",
+    "11th Grade",
+    "12th Grade",
+  ];
+  emails: string[] = ["bvarley@gmail.com"];
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   constructor(public fb: FormBuilder) {}
 
   ngOnInit(): void {
-    this.reactiveForm()
+    this.reactiveForm();
   }
 
-  /* Reactive form */
+  /* Reactive detailsForm */
   reactiveForm() {
-    this.myForm = this.fb.group({
-      name: ['', [Validators.required]],
-      email: ['', [Validators.required]],
-      gender: ['Male'],
-      dob: ['', [Validators.required]],
-      grade: [''],
-      subjects: [this.SubjectsArray]
-    })
+    this.detailsForm = this.fb.group({
+      name: ["", [Validators.required]],
+      emails: [
+        this.emails,
+        [CustomValidators.validateRequired, CustomValidators.validateEmails],
+      ],
+      gender: ["Male"],
+      dob: ["", [Validators.required]],
+      grade: ["", [CustomValidators.validateRequired]],
+    });
+
+    this.detailsForm.controls['emails'].setValue(this.emails);
+
   }
 
   /* Date */
-    date(e) {
-      var convertDate = new Date(e.target.value).toISOString().substring(0, 10);
-      this.myForm.get('dob').setValue(convertDate, {
-        onlyself: true
-      })
-    }
+  date(e) {
+    var convertDate = new Date(e.target.value).toISOString().substring(0, 10);
+    this.detailsForm.get("dob").setValue(convertDate, {
+      onlyself: true,
+    });
+  }
 
-      /* Add dynamic languages */
-  add(event: MatChipInputEvent): void {
+  addEmail(event: MatChipInputEvent): void {
     const input = event.input;
     const value = event.value;
-    // Add language
-    if ((value || '').trim() && this.SubjectsArray.length < 5) {
-      this.SubjectsArray.push({ name: value.trim() })
-    }
-    // Reset the input value
-    if (input) {
-      input.value = '';
+    if ((value.trim() !== '')) {
+      this.detailsForm.controls['emails'].setErrors(null);   // 1
+      const tempEmails = this.detailsForm.controls['emails'].value; // 2
+      tempEmails.push(value.trim());
+      this.detailsForm.controls['emails'].setValue(tempEmails);     // 3
+      if (this.detailsForm.controls['emails'].valid) {              // 4
+        this.detailsForm.controls['emails'].markAsDirty();
+        input.value = '';                                    // 5
+      } else {
+        // const index = this.emails.findIndex(value1 => value1 === value.trim());
+        // if (index !== -1) {
+        //   this.emails.splice(index, 1);           // 6
+        // }
+        this.detailsForm.controls['emails'].markAsDirty();
+        input.value = '';  
+        this.detailsForm.controls['emails'].updateValueAndValidity();
+      }
+    } else {
+      this.detailsForm.controls['emails'].updateValueAndValidity();  // 7
     }
   }
 
-  /* Remove dynamic languages */
-  remove(subject: Subject): void {
-    const index = this.SubjectsArray.indexOf(subject);
-    if (index >= 0) {
-      this.SubjectsArray.splice(index, 1);
+  removeEmail(email: string): void {
+    let controller = this.detailsForm.controls['emails'];
+    let index = this.emails.indexOf(email, 0);
+    if (index > -1) {
+      this.emails.splice(index, 1);
     }
-  }  
+    controller.updateValueAndValidity();
+    controller.markAsDirty();
+  }
 
-  /* Handle form errors in Angular 8 */
   public errorHandling = (control: string, error: string) => {
-    return this.myForm.controls[control].hasError(error);
-  }
+    return this.detailsForm.controls[control].hasError(error);
+  };
 
   submitForm() {
-    console.log(this.myForm.value)
+    this.detailsForm.controls["emails"].markAsTouched();
+    if (this.detailsForm.valid) {
+      console.log("Ready to go: ", this.detailsForm.controls["emails"].value);
+    }
   }
-
 }
